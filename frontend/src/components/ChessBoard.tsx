@@ -40,8 +40,10 @@ export const ChessBoard = ({
                         socket.send(JSON.stringify({
                             type : MOVE,
                             payload : {
+                              move : {
                                 from,
                                 to : squareRepresentation
+                              }
                             }
                         }));
                         setFrom(null);
