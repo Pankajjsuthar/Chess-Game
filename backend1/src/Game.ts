@@ -31,23 +31,35 @@ export class Game{
 
     makeMove(socket: WebSocket, move: { from: string; to: string; }) {
         // Validate the type of move using zod (if needed)
-    
-        // Check if it's the player's turn
-        const isWhiteTurn = this.movesCount % 2 === 0;
-        const isPlayerWhite = socket === this.player1;
-        if (isWhiteTurn !== isPlayerWhite) {
-            // It's not the player's turn
+        if(this.movesCount %2 ===0 && socket!=this.player1){
             return;
         }
+        if(this.movesCount %2 ===1 && socket!=this.player2){
+            return;
+        }
+        
     
         try {
             this.board.move(move);
+            
         } catch (e) {
             // Invalid move
             return;
         }
     
         // Update the board
+        if(this.movesCount %2==0){
+            this.player2.send(JSON.stringify({
+                type : MOVE,
+                payload : move
+            }))
+        }
+        else{
+            this.player1.send(JSON.stringify({
+                type : MOVE,
+                payload : move
+            }))
+        }
         this.movesCount++;
     
         // Check if the game is over
@@ -57,9 +69,5 @@ export class Game{
             this.player2.send(JSON.stringify({ type: GAME_OVER, payload: { winner } }));
             return;
         }
-    
-        // Send the move to the opponent
-        const opponent = isPlayerWhite ? this.player2 : this.player1;
-        opponent.send(JSON.stringify({ type: MOVE, payload: move }));
     }
 }
